@@ -1,0 +1,24 @@
+{
+  "name": "endeken/ofx-php-parser",
+  "description": "OFX PHP parser library",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Wes Guirra",
+      "email": "wes.guirra@endeken.com"
+    }
+  ],
+  "require": {
+    "ext-simplexml": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Endeken\\OFX\\": "src/"
+    }
+  },
+  "minimum-stability": "stable",
+  "require-dev": {
+    "phpunit/phpunit": "^11.0"
+  }
+}

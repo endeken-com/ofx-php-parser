@@ -1,0 +1,48 @@
+OFXHEADER:100
+DATA:OFXSGML
+VERSION:102
+SECURITY:NONE
+ENCODING:USASCII
+CHARSET:1252
+COMPRESSION:NONE
+OLDFILEUID:NONE
+NEWFILEUID:NONE
+
+<OFX>
+    <SIGNONMSGSRSV1>
+        <!-- Not used -->
+    </SIGNONMSGSRSV1>
+    <BANKMSGSRSV1>
+        <STMTTRNRS>
+            <TRNUID>0</TRNUID>
+            <STATUS>
+                <CODE>0</CODE>
+                <SEVERITY>INFO</SEVERITY>
+            </STATUS>
+            <STMTRS>
+                <CURDEF>USD</CURDEF>
+                <BANKACCTFROM>
+                    <BANKID>000000123</BANKID>
+                    <ACCTID>123456</ACCTID>
+                    <ACCTTYPE>CHECKING</ACCTTYPE>
+                </BANKACCTFROM>
+                <BANKTRANLIST>
+                    <DTSTART>20050801</DTSTART>
+                    <DTEND>20050831165056.000[-8:PST]</DTEND>
+                    <STMTTRN>
+                        <TRNTYPE>PAYMENT</TRNTYPE>
+                        <DTPOSTED>20050824080000</DTPOSTED>
+                        <TRNAMT>-80.32</TRNAMT>
+                        <FITID>219378</FITID>
+                        <CHECKNUM>1044</CHECKNUM>
+                        <NAME>FrogKick Scuba Gear</NAME>
+                    </STMTTRN>
+                </BANKTRANLIST>
+                <LEDGERBAL>
+                    <BALAMT>2156.56</BALAMT>
+                    <DTASOF>20050831165056</DTASOF>
+                </LEDGERBAL>
+            </STMTRS>
+        </STMTTRNRS>
+    </BANKMSGSRSV1>
+</OFX>
