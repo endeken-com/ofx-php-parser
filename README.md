@@ -2,7 +2,7 @@
 This project consists of a PHP parser for OFX (Open Financial Exchange) files, implemented using PHP 8.2. Our aim is to make the process of importing OFX files as straightforward and hassle-free as possible.
 
 [![Build Status](https://scrutinizer-ci.com/g/endeken-com/ofx-php-parser/badges/build.png?b=main)](https://scrutinizer-ci.com/g/endeken-com/ofx-php-parser/build-status/main)
-[![Latest Stable Version](https://img.shields.io/github/release/endeken/ofx-php-parser.svg)](https://packagist.org/packages/endeken/ofx-php-parser)
+[![Latest Stable Version](https://img.shields.io/github/v/release/endeken-com/ofx-php-parser.svg)](https://packagist.org/packages/endeken/ofx-php-parser)
 [![Code Coverage](https://scrutinizer-ci.com/g/endeken-com/ofx-php-parser/badges/coverage.png?b=main)](https://scrutinizer-ci.com/g/endeken/ofx-php-parser/?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/endeken-com/ofx-php-parser/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/endeken/ofx-php-parser/?branch=master)
 [![Downloads](https://img.shields.io/packagist/dt/endeken/ofx-php-parser.svg)](https://packagist.org/packages/endeken/ofx-php-parser)
