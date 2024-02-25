@@ -2,7 +2,7 @@
 
 namespace Endeken\OFX;
 
-use DateTimeInterface;
+use DateTime;
 
 class SignOn
 {
@@ -12,9 +12,9 @@ class SignOn
     public Status $status;
 
     /**
-     * @var DateTimeInterface
+     * @var DateTime
      */
-    public DateTimeInterface $date;
+    public DateTime $date;
 
     /**
      * @var string
@@ -26,7 +26,7 @@ class SignOn
      */
     public Institute $institute;
 
-    public function __construct(Status $status, DateTimeInterface $date, string $language, Institute $institute)
+    public function __construct(Status $status, DateTime $date, string $language, Institute $institute)
     {
         $this->status = $status;
         $this->date = $date;

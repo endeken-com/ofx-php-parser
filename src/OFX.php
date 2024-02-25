@@ -201,7 +201,7 @@ class OFX
                 $sic,
                 $checkNumber,
             );
-        };
+        }
         return new Statement($currency, $transactions, $startDate, $endDate);
     }
 

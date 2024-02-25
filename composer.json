@@ -12,7 +12,6 @@
   ],
   "require": {
     "ext-simplexml": "*",
-    "ext-http": "*",
     "ext-mbstring": "*",
     "ext-libxml": "*"
   },

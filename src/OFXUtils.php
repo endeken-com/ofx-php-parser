@@ -2,9 +2,12 @@
 
 namespace Endeken\OFX;
 
+use RuntimeException;
+use SimpleXMLElement;
+
 class OFXUtils
 {
-    public static function normalizeOfx(string $ofxContent): string|false|\SimpleXMLElement
+    public static function normalizeOfx(string $ofxContent): string|false|SimpleXMLElement
     {
         $ofxContent = str_replace(['\r\n'], '\n', $ofxContent);
         $ofxContent = mb_convert_encoding($ofxContent, 'UTF-8', 'ISO-8859-1');
@@ -25,7 +28,7 @@ class OFXUtils
         $xml = simplexml_load_string($ofxXml);
 
         if ($errors = libxml_get_errors()) {
-            throw new \RuntimeException('Failed to parse OFX: ' . var_export($errors, true));
+            throw new RuntimeException('Failed to parse OFX: ' . var_export($errors, true));
         }
 
         return $xml;
@@ -110,7 +113,7 @@ class OFXUtils
             $line,
             $matches
         )) {
-            return "<{$matches[1]}>{$matches[2]}</{$matches[1]}>";
+            return "<$matches[1]>$matches[2]</$matches[1]>";
         }
         return $line;
     }

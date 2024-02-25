@@ -115,8 +115,7 @@ class Transaction
      */
     public function typeDescription(): string
     {
-        // Cast SimpleXMLObject to string
-        $type = (string)$this->type;
+        $type = $this->type;
         return array_key_exists($type, self::$types) ? self::$types[$type] : '';
     }
 }
