@@ -3,6 +3,7 @@
   "description": "OFX PHP parser library",
   "type": "library",
   "license": "MIT",
+  "keywords": ["ofx", "open financial exchange", "finance", "parser"],
   "authors": [
     {
       "name": "Wes Guirra",
