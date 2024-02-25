@@ -2,72 +2,34 @@
 
 namespace Endeken\OFX;
 
-use Endeken\OFX\OFXTransaction;
-
 class OFXData
 {
     /**
-     * @var string
+     * @var SignOn
      */
-    private $bankId;
+    public SignOn $signOn;
 
     /**
-     * @var string
+     * @var AccountInfo[]|null
      */
-    private $accountId;
+    public array|null $accountInfo;
 
     /**
-     * @var array
+     * @var BankAccount[]
      */
-    private $transactions = [];
-
-    // Add more properties to represent other fields in the OFX file...
+    public array $bankAccounts;
 
     /**
-     * OFXParsedData constructor.
+     * OFXData constructor.
      *
-     * @param string $bankId
-     * @param string $accountId
-     * @param array<OFXTransaction> $transactions
-     * Add more parameters for additional fields...
+     * @param SignOn $signOn
+     * @param AccountInfo[]|null $accountInfo
+     * @param BankAccount[] $bankAccounts
      */
-    public function __construct(string $bankId, string $accountId, array $transactions)
+    public function __construct(SignOn $signOn, array|null $accountInfo, array $bankAccounts)
     {
-        $this->bankId = $bankId;
-        $this->accountId = $accountId;
-        $this->transactions = $transactions;
-        // Initialize other properties...
+        $this->signOn = $signOn;
+        $this->accountInfo = $accountInfo;
+        $this->bankAccounts = $bankAccounts;
     }
-
-    /**
-     * Get the value of bankId.
-     *
-     * @return string
-     */
-    public function getBankId(): string
-    {
-        return $this->bankId;
-    }
-
-    /**
-     * Get the value of accountId.
-     *
-     * @return string
-     */
-    public function getAccountId(): string
-    {
-        return $this->accountId;
-    }
-
-    /**
-     * Get the value of transactions.
-     *
-     * @return array<OFXTransaction>
-     */
-    public function getTransactions(): array
-    {
-        return $this->transactions;
-    }
-
-    // Add more getter methods for additional fields...
 }

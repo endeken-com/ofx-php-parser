@@ -7,112 +7,89 @@ use DateTimeZone;
 use Exception;
 use SimpleXMLElement;
 
+/**
+ * Class OFX
+ *
+ * This class provides functions to parse OFX data and convert it into an associative array or appropriate objects.
+ */
 class OFX
 {
     /**
      * Parse OFX data and return an associative array with the parsed information.
      *
      * @param string $ofxData The OFX data as a string.
-     * @return OFXData|false An associative array with the parsed information or false on failure.
+     * @return OFXData|null An associative array with the parsed information or false on failure.
      * @throws Exception
      */
-    public static function parse(string $ofxData): false|OFXData
+    public static function parse(string $ofxData): null|OFXData
     {
-        // Create a SimpleXML object from the OFX data
-        $xml = simplexml_load_string($ofxData);
 
         // Check if SimpleXML object was created successfully
+
+        $xml = OFXUtils::normalizeOfx($ofxData);
         if ($xml === false) {
-            return false;
+            return null;
         }
 
-        // Extract relevant data from the OFX XML structure and convert it to an array
-        $parsedData = self::parseXML($xml);
+        $signOn = self::parseSignOn($xml->SIGNONMSGSRSV1->SONRS);
+        $accountInfo = self::parseAccountInfo($xml->SIGNUPMSGSRSV1->ACCTINFOTRNRS);
+        $bankAccounts = [];
 
-        $ofxTransactions = [];
-
-        foreach ($parsedData['transactions'] as $transaction) {
-            $ofxTransactions[] = new OFXTransaction(
-                $transaction['type'],
-                $transaction['amount'],
-                $transaction['date']
-            );
+        if (isset($xml->BANKMSGSRSV1)) {
+            foreach ($xml->BANKMSGSRSV1->STMTTRNRS as $accountStatement) {
+                foreach ($accountStatement->STMTRS as $statementResponse) {
+                    $bankAccounts[] = self::parseBankAccount($accountStatement->TRNUID, $statementResponse);
+                }
+            }
+        } elseif (isset($xml->CREDITCARDMSGSRSV1)) {
+            $bankAccounts[] = self::parseCreditAccount($xml->TRNUID, $xml);
         }
-
-        return new OFXData($parsedData['bankId'], $parsedData['accountId'], $ofxTransactions);
+        return new OFXData($signOn, $accountInfo, $bankAccounts);
     }
 
     /**
-     * Recursively parse SimpleXML object to convert it into an associative array.
-     *
-     * @param SimpleXMLElement $xml SimpleXML object to parse.
-     * @return array<string, mixed> Parsed data as an associative array.
+     * @param SimpleXMLElement $xml
+     * @return SignOn
      * @throws Exception
      */
-    private static function parseXML(SimpleXMLElement $xml): array
+    protected static function parseSignOn(SimpleXMLElement $xml): SignOn
     {
-        $parsedData = [];
+        $status = self::parseStatus($xml->STATUS);
+        $dateTime = self::parseDate($xml->DTSERVER);
+        $language = $xml->LANGUAGE;
+        $institute = self::parseInstitute($xml->FI);
+        return new SignOn($status, $dateTime, $language, $institute);
+    }
 
-        // Check if the OFX version is specified in the header
-        $version = (string) $xml->attributes()->OFXHEADER;
-
-        if (stripos($version, '200') !== false) {
-            // OFX version 2.0 or later
-            $parsedData['bankId'] = (string) $xml->BANKID;
-            $parsedData['accountId'] = (string) $xml->ACCTID;
-
-            // Assuming there is a list of transactions, adjust this based on your actual structure
-            $parsedData['transactions'] = [];
-
-            foreach ($xml->STMTTRN as $transaction) {
-                $parsedData['transactions'][] = self::parseTransaction($transaction);
-            }
-        } elseif (isset($xml->BANKID, $xml->ACCTID, $xml->STMTTRN)) {
-            // OFX version 2.0 or later (inferred from structure)
-            $parsedData['bankId'] = (string) $xml->BANKID;
-            $parsedData['accountId'] = (string) $xml->ACCTID;
-
-            // Assuming there is a list of transactions, adjust this based on your actual structure
-            $parsedData['transactions'] = [];
-
-            foreach ($xml->STMTTRN as $transaction) {
-                $parsedData['transactions'][] = self::parseTransaction($transaction);
-            }
-        } elseif (isset($xml->BANKMSGSRSV1->STMTTRN)) {
-            // OFX version 1.0 or earlier
-            // Handle parsing logic for this version
-            // Modify the code based on the actual structure of OFX 1.0
-            // ...
-
-            // Example:
-            $parsedData['bankId'] = (string) $xml->BANKID;
-            $parsedData['accountId'] = (string) $xml->ACCTID;
-
-            $parsedData['transactions'] = [];
-
-            foreach ($xml->BANKMSGSRSV1->STMTTRN as $transaction) {
-                $parsedData['transactions'][] = self::parseTransaction($transaction);
-            }
-        } else {
-            // Unable to determine the OFX version
-            // You might want to log an error or throw an exception depending on your needs
-            return [];
-        }
-
-        return $parsedData;
+    protected static function parseInstitute(SimpleXMLElement $xml): Institute
+    {
+        $name = (string) $xml->ORG;
+        $id = (string) $xml->FID;
+        return new Institute($id, $name);
     }
 
     /**
-     * Parse transaction details from SimpleXML.
+     * @param SimpleXMLElement $xml
+     * @return Status
+     */
+    protected static function parseStatus(SimpleXMLElement $xml): Status
+    {
+        $code = (string) $xml->STATUS->CODE;
+        $severity = (string) $xml->STATUS->SEVERITY;
+        $message = (string) $xml->STATUS->MESSAGE;
+        return new Status($code, $severity, $message);
+    }
+
+    /**
+     * Parse a date string and return a formatted date.
      *
-     * @param SimpleXMLElement $transaction Transaction node in SimpleXML.
-     * @return array<string, mixed> Parsed transaction details as an associative array.
+     * @param string $dateString The date string to parse.
+     * @return DateTime The formatted date.
      * @throws Exception
      */
-    private static function parseTransaction(SimpleXMLElement $transaction): array
+    protected static function parseDate(string $dateString): DateTime
     {
-        $dateString = (string) $transaction->DTPOSTED;
-
+        $dateString = explode('.', $dateString)[0];
         // Extract the numeric part of the offset (e.g., -5 from [-5:EST])
         preg_match('/([-+]\d+):(\w+)/', $dateString, $matches);
 
@@ -130,15 +107,117 @@ class OFX
             $dateTime = new DateTime($dateStringWithoutOffset, new DateTimeZone("GMT$offset"));
             $dateTime->setTimezone(new DateTimeZone($timezoneAbbreviation));
 
-            return [
-                'type' => (string) $transaction->TRNTYPE,
-                'amount' => (float) $transaction->TRNAMT,
-                'date' => $dateTime,
-            ];
         } else {
             // Handle cases where the date format doesn't match expectations
             // You might want to log an error or throw an exception depending on your needs
-            return [];
+            $dateTime = new DateTime($dateString);
         }
+        return $dateTime;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private static function parseBankAccount(string $uuid, SimpleXMLElement $xml): BankAccount
+    {
+        $accountNumber = $xml->BANKACCTFROM->ACCTID;
+        $accountType = $xml->BANKACCTFROM->ACCTTYPE;
+        $agencyNumber = $xml->BANKACCTFROM->BRANCHID;
+        $routingNumber = $xml->BANKACCTFROM->BANKID;
+        $balance = $xml->LEDGERBAL->BALAMT;
+        $balanceDate = self::parseDate($xml->LEDGERBAL->DTASOF);
+        $statement = self::parseStatement($xml);
+        return new BankAccount(
+            $accountNumber,
+            $accountType,
+            $agencyNumber,
+            $routingNumber,
+            $balance,
+            $balanceDate,
+            $uuid,
+            $statement,
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private static function parseCreditAccount(string $uuid, SimpleXMLElement $xml): BankAccount
+    {
+        $nodeName = 'CCACCTFROM';
+        if (!isset($xml->CCSTMTRS->$nodeName)) {
+            $nodeName = 'BANKACCTFROM';
+        }
+
+        $accountNumber = $xml->CCSTMTRS->$nodeName->ACCTID;
+        $accountType = $xml->CCSTMTRS->$nodeName->ACCTTYPE;
+        $agencyNumber = $xml->CCSTMTRS->$nodeName->BRANCHID;
+        $routingNumber = $xml->CCSTMTRS->$nodeName->BANKID;
+        $balance = $xml->CCSTMTRS->LEDGERBAL->BALAMT;
+        $balanceDate = self::parseDate($xml->CCSTMTRS->LEDGERBAL->DTASOF);
+        $statement = self::parseStatement($xml);
+        return new BankAccount(
+            $accountNumber,
+            $accountType,
+            $agencyNumber,
+            $routingNumber,
+            $balance,
+            $balanceDate,
+            $uuid,
+            $statement,
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private static function parseStatement(SimpleXMLElement $xml): Statement
+    {
+        $currency = $xml->CURDEF;
+        $startDate = self::parseDate($xml->BANKTRANLIST->DTSTART);
+        $endDate = self::parseDate($xml->BANKTRANLIST->DTEND);
+        $transactions = [];
+        foreach ($xml->BANKTRANLIST->STMTTRN as $transactionXml) {
+            $type = (string) $transactionXml->TRNTYPE;
+            $date = self::parseDate($transactionXml->DTPOSTED);
+            $userInitiatedDate = null;
+            if (!empty((string) $transactionXml->DTUSER)) {
+                $userInitiatedDate = self::parseDate($transactionXml->DTUSER);
+            }
+            $amount = (float) $transactionXml->TRNAMT;
+            $uniqueId = (string) $transactionXml->FITID;
+            $name = (string) $transactionXml->NAME;
+            $memo = (string) $transactionXml->MEMO;
+            $sic = $transactionXml->SIC;
+            $checkNumber = $transactionXml->CHECKNUM;
+            $transactions[] = new Transaction(
+                $type,
+                $amount,
+                $date,
+                $userInitiatedDate,
+                $uniqueId,
+                $name,
+                $memo,
+                $sic,
+                $checkNumber,
+            );
+        };
+        return new Statement($currency, $transactions, $startDate, $endDate);
+    }
+
+    private static function parseAccountInfo(SimpleXMLElement $xml = null): array|null
+    {
+        if ($xml === null || !isset($xml->ACCTINFO)) {
+            return null;
+        }
+        $accounts = [];
+        foreach ($xml->ACCTINFO as $account) {
+            $accounts[] = new AccountInfo(
+                (string)$account->DESC,
+                (string)$account->ACCTID
+            );
+        }
+
+        return $accounts;
     }
 }

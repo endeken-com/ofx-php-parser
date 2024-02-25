@@ -1,0 +1,91 @@
+OFXHEADER:100
+DATA:OFXSGML
+VERSION:103
+
+SECURITY:NONE
+
+
+ENCODING:USASCII
+CHARSET:1252
+COMPRESSION:NONE
+OLDFILEUID:NONE
+NEWFILEUID:NONE
+
+<OFX>
+  <SIGNONMSGSRSV1>
+    <SONRS>
+      <STATUS>
+        <CODE>0
+        <SEVERITY>INFO
+      </STATUS>
+      <DTSERVER>20071015021529.000[-8:PST]
+      <LANGUAGE>ENG
+      <DTACCTUP>19900101000000
+      <FI>
+        <ORG>MYBANK
+        <FID>01234
+      </FI>
+    </SONRS>
+  </SIGNONMSGSRSV1>
+  <BANKMSGSRSV1>
+      <STMTTRNRS>
+        <TRNUID>23382938
+        <STATUS>
+          <CODE>0
+          <SEVERITY>INFO
+        </STATUS>
+        <STMTRS>
+          <CURDEF>USD
+          <BANKACCTFROM>
+            <BANKID>987654321
+            <ACCTID>098-121
+            <ACCTTYPE>SAVINGS
+          </BANKACCTFROM>
+          <BANKTRANLIST>
+            <DTSTART>20070101
+            <DTEND>20071015
+            <STMTTRN>
+              <TRNTYPE>CREDIT
+              <DTPOSTED>20070315
+              <DTUSER>20070315
+              <TRNAMT>200.00
+              <FITID>980315001
+              <NAME>DEPOSIT
+              <MEMO>automatic deposit
+              <PAYEEID>12345
+              <REFNUM>22222
+              <EXTDNAME>Extended name of payee
+              <PAYEE>
+                <NAME>Payee name
+                <ADDR1>Address line 1
+                <ADDR2>Address line 2
+                <ADDR3>Address line 3
+                <CITY>Voronezh
+                <STATE>Voronezh region
+                <POSTALCODE>100000
+                <COUNTRY>Russia
+                <PHONE>+74951234567
+              </PAYEE>
+              <BANKACCTTO>
+                <BANKID>026009593
+                <BRANCHID>11111
+                <ACCTID>43142341234123
+                <ACCTTYPE>CHECKING
+              </BANKACCTTO>
+              <CCACCTTO>
+                <ACCTID>1111-2222-3333-4444
+              </CCACCTTO>
+            </STMTTRN>
+          </BANKTRANLIST>
+          <LEDGERBAL>
+            <BALAMT>5250.00
+            <DTASOF>20071015021529.000[-8:PST]
+          </LEDGERBAL>
+          <AVAILBAL>
+            <BALAMT>5250.00
+            <DTASOF>20071015021529.000[-8:PST]
+          </AVAILBAL>
+        </STMTRS>
+      </STMTTRNRS>
+  </BANKMSGSRSV1>
+</OFX>

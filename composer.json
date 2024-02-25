@@ -10,7 +10,10 @@
     }
   ],
   "require": {
-    "ext-simplexml": "*"
+    "ext-simplexml": "*",
+    "ext-http": "*",
+    "ext-mbstring": "*",
+    "ext-libxml": "*"
   },
   "autoload": {
     "psr-4": {

@@ -5,35 +5,35 @@ use Endeken\OFX\OFX;
 
 class OFXTest extends TestCase
 {
-    private string $ofxTestFilesDir = __DIR__ . '/samples';
+    private string $ofxTestFilesDir = __DIR__ . '/fixtures';
 
     /**
      * @throws Exception
      */
-    public function testParseSGML()
+    public function testMultipleAccountsXML()
     {
-        $filePath = $this->ofxTestFilesDir . '/sample_sgml.ofx';
+        $filePath = $this->ofxTestFilesDir . '/ofx-multiple-accounts-xml.ofx';
         $ofxContent = file_get_contents($filePath);
 
         $parsedData = OFX::parse($ofxContent);
 
-        // Add assertions based on your expected parsed data structure
+        var_dump($parsedData);
+
         $this->assertNotEmpty($parsedData);
-        // Add more specific assertions based on the expected structure of the parsed data
     }
 
     /**
      * @throws Exception
      */
-    public function testParseXML()
+    public function testOfxData()
     {
-        $filePath = $this->ofxTestFilesDir . '/sample_xml.ofx';
+        $filePath = $this->ofxTestFilesDir . '/ofxdata.ofx';
         $ofxContent = file_get_contents($filePath);
 
         $parsedData = OFX::parse($ofxContent);
 
-        // Add assertions based on your expected parsed data structure
+        var_dump($parsedData);
+
         $this->assertNotEmpty($parsedData);
-        // Add more specific assertions based on the expected structure of the parsed data
     }
 }
